@@ -577,6 +577,7 @@
         let currentSettings = null;
         let currentUser = null;
         let countdownInterval = null;
+        let buttonIsActive = false;  // Button aktif mi kontrolü
 
         // Handle login
         async function handleLogin() {
@@ -664,6 +665,12 @@
                     document.getElementById('productDesc').textContent = currentSettings.productDescription || 'Ürün hakkında daha fazla bilgi...';
                     document.getElementById('productPrice').textContent = `₺${currentSettings.startPrice?.toLocaleString('tr-TR') || '0'}`;
 
+                    // Button state'ini sıfırla
+                    buttonIsActive = false;
+                    const btn = document.getElementById('btnBuyNow');
+                    btn.disabled = true;
+                    btn.classList.remove('show');
+
                     // Check if auction has a winner
                     const auctionRes = await fetch(`${API_URL}/auctions/default`);
                     const auction = await auctionRes.json();
@@ -716,6 +723,7 @@
 
         // Activate button
         function activateButton() {
+            buttonIsActive = true;  // State'i güncelle
             document.getElementById('countdownSection').style.display = 'none';
             document.getElementById('countdownTimer').textContent = '00:00:00';
             document.getElementById('activationStatus').classList.add('show');
@@ -727,9 +735,16 @@
 
         // Buy now button click
         document.getElementById('btnBuyNow').addEventListener('click', (e) => {
+            // State flag kontrol - en önemli ön şart
+            if (!buttonIsActive) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            
             const btn = document.getElementById('btnBuyNow');
             
-            // Button aktif değilse tıklamayı engelle
+            // Ek kontroller
             if (btn.disabled || !btn.classList.contains('show')) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -741,7 +756,7 @@
                 return;
             }
             showPurchaseModal();
-        }, true); // Capture phase kullan
+        }, true);
 
         // Show purchase modal
         function showPurchaseModal() {
