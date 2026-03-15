@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - İhale Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Open Sans", sans-serif;
+            background: #f5f5f5;
+            padding: 0;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h1 {
+            font-size: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #FF6B35;
+            padding-bottom: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu button {
+            width: 100%;
+            padding: 12px 15px;
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu button:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-left-color: #FF6B35;
+        }
+
+        .sidebar-menu button.active {
+            background: rgba(255, 107, 53, 0.2);
+            border-left-color: #FF6B35;
+            color: #FF6B35;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #FF6B35;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="datetime-local"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 5px rgba(255, 107, 53, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #E55A24;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            flex: 0 1 auto;
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th {
+            background: #ecf0f1;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            font-size: 13px;
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .countdown-display {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .countdown-display strong {
+            font-size: 24px;
+            color: #FF6B35;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #FF6B35;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #ecf0f1;
+            color: #333;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-small:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-small.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-small.delete:hover {
+            background: #c0392b;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-menu li {
+                flex: 1 1 50%;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Admin Login Screen */
+        .admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-login-overlay.hidden {
+            display: none;
+        }
+
+        .admin-login-box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .admin-login-box h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .admin-login-box p {
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .admin-login-input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .admin-login-input:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 8px rgba(255, 107, 53, 0.2);
+        }
+
+        .admin-login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF6B35 0%, #E55A24 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .admin-login-button:active {
+            transform: translateY(0);
+        }
+
+        .admin-login-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .admin-login-error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div class="admin-login-overlay" id="adminLoginOverlay">
+        <div class="admin-login-box">
+            <h2>🔐 Admin Girişi</h2>
+            <p>Yönetici paneline erişmek için şifre giriniz</p>
+            <input 
+                type="password" 
+                id="adminPassword" 
+                class="admin-login-input" 
+                placeholder="Şiffre girin..." 
+                onkeypress="if(event.key==='Enter') verifyAdminPassword()"
+            >
+            <button class="admin-login-button" onclick="verifyAdminPassword()">Giriş Yap</button>
+            <div id="adminLoginError" class="admin-login-error"></div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1>🛠️ Admin Paneli</h1>
+            <ul class="sidebar-menu">
+                <li><button onclick="switchSection('dashboard')" class="active">📊 Dashboard</button></li>
+                <li><button onclick="switchSection('settings')">⚙️ Ayarlar</button></li>
+                <li><button onclick="switchSection('users')">👥 Kullanıcılar</button></li>
+                <li><button onclick="switchSection('auction')">🏆 İhale Yönetimi</button></li>
+                <li><button onclick="switchSection('stats')">📈 İstatistikler</button></li>
+                <li><button onclick="adminLogout()" style="color: #e74c3c; margin-top: 20px; border-top: 1px solid #444; padding-top: 20px;">🚪 Çıkış Yap</button></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Uyarı Mesajları -->
+            <div id="alertBox" class="alert"></div>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="card">
+                    <h2>Dashboard</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Toplam Kullanıcı</h3>
+                            <div class="value" id="stat-users">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Aktif İhaleler</h3>
+                            <div class="value" id="stat-auctions">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Toplam Teklifler</h3>
+                            <div class="value" id="stat-bids">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Sistem Durumu</h3>
+                            <div class="value" style="color: #27ae60;">✓ Çalışıyor</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Sonraki "Hemen Al" Zamanı</h3>
+                    <div class="countdown-display">
+                        <div>Geri Sayım:</div>
+                        <strong id="nextActivationTime">Belirlenmedi</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="section">
+                <div class="card">
+                    <h2>Sistem Ayarları</h2>
+                    
+                    <div class="form-group">
+                        <label>🕐 "Hemen Al" Butonunun Aktif Olacağı Tarih ve Saat</label>
+                        <input type="datetime-local" id="activationTime" required>
+                        <small style="color: #666; display: block; margin-top: 5px;">Bu tarihte "Hemen Al" butonu tüm kullanıcılara görünecek ve geri sayım başlayacak.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 İhale Tanımı</label>
+                        <input type="text" id="auctionTitle" placeholder="örn: 2023 Toyota Corolla" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💰 Başlangıç Fiyatı (TL)</label>
+                        <input type="number" id="startPrice" placeholder="500000" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📖 Ürün Açıklaması</label>
+                        <textarea id="productDescription" placeholder="Ürün hakkında detaylı bilgi..."></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="section">
+                <div class="card">
+                    <h2>Kullanıcı Yönetimi</h2>
+                    
+                    <div class="two-column">
+                        <div>
+                            <h3 style="margin-bottom: 15px; margin-top: 0;">Yeni Kullanıcı Ekle</h3>
+                            
+                            <div class="form-group">
+                                <label>Kullanıcı Adı</label>
+                                <input type="text" id="newUsername" placeholder="örn: user123">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="newEmail" placeholder="ornek@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Telefon</label>
+                                <input type="text" id="newPhone" placeholder="05XX XXX XXXX">
+                            </div>
+
+                            <div class="form-group">
+                                <label>🔐 Şifre</label>
+                                <input type="password" id="newPassword" placeholder="Güvenli bir şifre girin">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Durum</label>
+                                <select id="newUserStatus">
+                                    <option value="active">Aktif</option>
+                                    <option value="inactive">İnaktif</option>
+                                </select>
+                            </div>
+
+                            <button class="btn-primary" onclick="addUser()" style="width: 100%;">➕ Kullanıcı Ekle</button>
+                        </div>
+
+                        <div>
+                            <h3 style="margin-bottom: 15px; margin-top: 0;">Kullanıcıları Filtrele</h3>
+                            <div class="form-group">
+                                <input type="text" id="userSearchBox" placeholder="Ara..." onkeyup="searchUsers()">
+                            </div>
+                            <button class="btn-secondary" onclick="loadUsers()" style="width: 100%;">🔄 Yenile</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0;">Kayıtlı Kullanıcılar</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Kullanıcı Adı</th>
+                                <th>Email</th>
+                                <th>Telefon</th>
+                                <th>Durum</th>
+                                <th>Kayıt Tarihi</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="6" style="text-align: center; color: #999;">Kullanıcı yükleniliyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Auction Section -->
+            <section id="auction" class="section">
+                <div class="card">
+                    <h2>İhale Yönetimi</h2>
+                    
+                    <h3 style="margin-bottom: 15px; margin-top: 0;">Aktif İhaleler</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>İhale</th>
+                                <th>Başlangıç Fiyatı</th>
+                                <th>Durum</th>
+                                <th>Kazanan</th>
+                                <th>Aktivasyon Zamanı</th>
+                                <th>Teklifler</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auctionTableBody">
+                            <tr><td colspan="7" style="text-align: center; color: #999;">İhale yükleniliyor...</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3 style="margin: 25px 0 15px 0;">Son Teklifler</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Kullanıcı</th>
+                                <th>İhale</th>
+                                <th>Teklif Tutarı</th>
+                                <th>Teklif Tarihi</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bidsTableBody">
+                            <tr><td colspan="5" style="text-align: center; color: #999;">Teklif yükleniliyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section id="stats" class="section">
+                <div class="card">
+                    <h2>İstatistikler</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Bu Gün Kayıtları</h3>
+                            <div class="value" id="stat-today">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Ortalama Teklif</h3>
+                            <div class="value" id="stat-avg-bid">₺0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>En Yüksek Teklif</h3>
+                            <div class="value" id="stat-max-bid">₺0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Tamamlanan İhaleler</h3>
+                            <div class="value" id="stat-completed">0</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0;">Sistem Günlüğü</h3>
+                    <div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                        <div id="systemLog">
+                            <div style="color: #3498db;">[Sistem] Admin paneli yüklendi.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+        const ADMIN_PASSWORD = 'alamettin'; // Admin şifresi
+
+        // Admin login control
+        function verifyAdminPassword() {
+            const passwordInput = document.getElementById('adminPassword');
+            const errorDiv = document.getElementById('adminLoginError');
+            const password = passwordInput.value;
+
+            if (!password) {
+                errorDiv.textContent = 'Lütfen şifre giriniz!';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (password === ADMIN_PASSWORD) {
+                // Şifre doğru
+                localStorage.setItem('adminLoggedIn', 'true');
+                document.getElementById('adminLoginOverlay').classList.add('hidden');
+                errorDiv.classList.remove('show');
+                loadInitialData();
+            } else {
+                // Şifre yanlış
+                errorDiv.textContent = '❌ Şifre yanlış!';
+                errorDiv.classList.add('show');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        // Check admin login on page load
+        function checkAdminLogin() {
+            const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                document.getElementById('adminLoginOverlay').classList.remove('hidden');
+                document.getElementById('adminPassword').focus();
+            } else {
+                document.getElementById('adminLoginOverlay').classList.add('hidden');
+                loadInitialData();
+            }
+        }
+
+        // Logout function
+        function adminLogout() {
+            localStorage.removeItem('adminLoggedIn');
+            location.reload();
+        }
+
+        // Initial load data
+        function loadInitialData() {
+            updateDashboard();
+            loadUsers();
+            loadAuctionData();
+        }
+
+        // Sidebar navigation
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (sectionId === 'users') loadUsers();
+            if (sectionId === 'auction') loadAuctionData();
+            if (sectionId === 'dashboard') updateDashboard();
+        }
+
+        // Alert message
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert show alert-${type}`;
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 5000);
+        }
+
+        // Save settings
+        async function saveSettings() {
+            const activationTime = document.getElementById('activationTime').value;
+            const auctionTitle = document.getElementById('auctionTitle').value;
+            const startPrice = document.getElementById('startPrice').value;
+            const productDescription = document.getElementById('productDescription').value;
+
+            if (!activationTime || !auctionTitle || !startPrice) {
+                showAlert('Lütfen tüm alanları doldurunuz!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/settings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        activationTime: new Date(activationTime).toISOString(),
+                        auctionTitle,
+                        startPrice: parseFloat(startPrice),
+                        productDescription
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('⚙️ Ayarlar başarıyla kaydedildi!', 'success');
+                    updateDashboard();
+                } else {
+                    showAlert('Ayarlar kaydedilemedi!', 'error');
+                }
+            } catch (error) {
+                showAlert(`Hata: ${error.message}`, 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Add user
+        async function addUser() {
+            const username = document.getElementById('newUsername').value;
+            const email = document.getElementById('newEmail').value;
+            const phone = document.getElementById('newPhone').value;
+            const password = document.getElementById('newPassword').value;
+            const status = document.getElementById('newUserStatus').value;
+
+            if (!username || !email || !phone || !password) {
+                showAlert('Lütfen tüm alanları doldurunuz!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, phone, password, status, registeredAt: new Date().toISOString() })
+                });
+
+                if (response.ok) {
+                    showAlert(`✅ ${username} başarıyla eklendi! Şifre: ${password}`, 'success');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newEmail').value = '';
+                    document.getElementById('newPhone').value = '';
+                    document.getElementById('newPassword').value = '';
+                    loadUsers();
+                    updateDashboard();
+                } else {
+                    showAlert('Kullanıcı eklenemedi!', 'error');
+                }
+            } catch (error) {
+                showAlert(`Hata: ${error.message}`, 'error');
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users`);
+                const users = await response.json();
+                
+                const tbody = document.getElementById('usersTableBody');
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Henüz kullanıcı eklenmedi.</td></tr>';
+                } else {
+                    tbody.innerHTML = users.map(user => `
+                        <tr>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${user.phone}</td>
+                            <td><span class="status-badge status-${user.status}">${user.status === 'active' ? '✓ Aktif' : '✗ İnaktif'}</span></td>
+                            <td>${new Date(user.registeredAt).toLocaleDateString('tr-TR')}</td>
+                            <td><button class="btn-small delete" onclick="deleteUser('${user.id}')">Sil</button></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Search users
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearchBox').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Delete user
+        async function deleteUser(userId) {
+            if (!confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showAlert('Kullanıcı silinmiştir.', 'success');
+                    loadUsers();
+                    updateDashboard();
+                }
+            } catch (error) {
+                showAlert(`Hata: ${error.message}`, 'error');
+            }
+        }
+
+        // Load auction data
+        async function loadAuctionData() {
+            try {
+                const response = await fetch(`${API_URL}/auctions`);
+                const auctions = await response.json();
+
+                const tbody = document.getElementById('auctionTableBody');
+                if (auctions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Henüz ihale eklenmedi.</td></tr>';
+                } else {
+                    tbody.innerHTML = auctions.map(auction => `
+                        <tr>
+                            <td>${auction.title}</td>
+                            <td>₺${auction.startPrice.toLocaleString('tr-TR')}</td>
+                            <td><span class="status-badge" style="background: ${auction.status === 'active' ? '#d4edda' : '#f8d7da'}; color: ${auction.status === 'active' ? '#155724' : '#721c24'};">${auction.status === 'active' ? '✓ Aktif' : '○ Bekleme'}</span></td>
+                            <td><strong>${auction.winnerName ? '🏆 ' + auction.winnerName : '-'}</strong></td>
+                            <td>${new Date(auction.activationTime).toLocaleString('tr-TR')}</td>
+                            <td>${auction.bidsCount || 0}</td>
+                            <td><button class="btn-small" onclick="viewBids('${auction.id}')">Teklifler</button></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update dashboard
+        async function updateDashboard() {
+            try {
+                const settingsRes = await fetch(`${API_URL}/settings`);
+                const settings = await settingsRes.json();
+
+                const usersRes = await fetch(`${API_URL}/users`);
+                const users = await usersRes.json();
+
+                const auctionsRes = await fetch(`${API_URL}/auctions`);
+                const auctions = await auctionsRes.json();
+
+                document.getElementById('stat-users').textContent = users.length;
+                document.getElementById('stat-auctions').textContent = auctions.filter(a => a.status === 'active').length;
+
+                let totalBids = 0;
+                auctions.forEach(a => totalBids += a.bidsCount || 0);
+                document.getElementById('stat-bids').textContent = totalBids;
+
+                if (settings && settings.activationTime) {
+                    const activationDate = new Date(settings.activationTime);
+                    document.getElementById('nextActivationTime').textContent = activationDate.toLocaleString('tr-TR');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Initial load
+        window.addEventListener('load', () => {
+            checkAdminLogin();
+        });
+
+        // Auto-update dashboard every 30 seconds
+        setInterval(updateDashboard, 30000);
+    </script>
+</body>
+</html>

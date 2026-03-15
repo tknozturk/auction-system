@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İhale Sistemi - Hemen Al Butonu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Open Sans", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .page-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #E55A24 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 40px 30px;
+            display: none;
+        }
+
+        .product-info {
+            margin-bottom: 30px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .product-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .price-section {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .price-label {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .price {
+            font-size: 32px;
+            color: #FF6B35;
+            font-weight: 700;
+        }
+
+        .countdown-section {
+            background: #2c3e50;
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .countdown-timer {
+            font-size: 36px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: #FF6B35;
+            margin-bottom: 10px;
+            min-height: 45px;
+        }
+
+        .countdown-status {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .activation-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .activation-status.show {
+            display: block;
+        }
+
+        .btn-buy-now {
+            width: 100%;
+            padding: 15px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-buy-now.show {
+            display: block;
+        }
+
+        .btn-buy-now:hover {
+            background: #E55A24;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-buy-now:active {
+            transform: translateY(0);
+        }
+
+        .btn-disabled {
+            width: 100%;
+            padding: 15px;
+            background: #ccc;
+            color: #666;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: not-allowed;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none;
+        }
+
+        .btn-disabled.show {
+            display: block;
+        }
+
+        /* Modal Styles */
+        .v--modal-overlay {
+            position: fixed;
+            box-sizing: border-box;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .v--modal-overlay.show {
+            display: flex;
+        }
+
+        .v--modal-overlay .v--modal-background-click {
+            width: 100%;
+            min-height: 100%;
+            height: 100vh;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .v--modal-box {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            z-index: 1000;
+        }
+
+        .a-modal__content {
+            padding: 30px 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .a-modal__content h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .a-modal__content p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .a-modal__buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .a-modal__buttons button {
+            flex: 1;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .a-modal__buttons button:nth-child(1) {
+            background: white;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .a-modal__buttons button:nth-child(1):hover {
+            background: #f0f0f0;
+        }
+
+        .a-modal__buttons button:nth-child(2) {
+            background: #FF6B35;
+            color: white;
+            border: 1px solid #FF6B35;
+        }
+
+        .a-modal__buttons button:nth-child(2):hover {
+            background: #E55A24;
+        }
+
+        .success-modal .v--modal-box {
+            background: #d4edda;
+            border: 2px solid #27ae60;
+        }
+
+        .success-modal .a-modal__content h2 {
+            color: #27ae60;
+            font-size: 28px;
+        }
+
+        .success-modal .a-modal__content p {
+            color: #155724;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FF6B35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1565c0;
+            line-height: 1.6;
+        }
+
+        .user-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .user-info strong {
+            color: #333;
+        }
+
+        /* Login Container */
+        .login-container {
+            display: none;
+            padding: 40px 30px;
+        }
+
+        .login-container.show {
+            display: block;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .login-form h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .login-form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .login-form-group input:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 5px rgba(255, 107, 53, 0.3);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .login-button:hover {
+            background: #E55A24;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .login-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .footer {
+            background: #f9f9f9;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 20px;
+            }
+
+            .countdown-timer {
+                font-size: 28px;
+            }
+
+            .price {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="header">
+            <h1>🏆 İhale Sistemi</h1>
+            <p>Hemen Al Butonu ile Güvenli Satın Alma</p>
+        </div>
+
+        <!-- Login Container -->
+        <div class="login-container show" id="loginContainer">
+            <div class="login-form">
+                <h2>🔐 Giriş Yap</h2>
+                <div class="login-form-group">
+                    <label>Kullanıcı Adı</label>
+                    <input type="text" id="loginUsername" placeholder="Kullanıcı adınızı girin">
+                </div>
+                <div class="login-form-group">
+                    <label>Şifre</label>
+                    <input type="password" id="loginPassword" placeholder="Şifrenizi girin">
+                </div>
+                <button class="login-button" onclick="handleLogin()">Giriş Yap</button>
+                <div class="login-error" id="loginError"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Info Box -->
+            <div class="info-box" id="userLoginInfo">
+                💡 <strong>Not:</strong> Admin panelinden bir kullanıcı olarak oturum açmanız gereklidir. Bu demo için lütfen admin.html sayfasını açıp kullanıcı ekleyiniz.
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <div class="product-title" id="productTitle">Ürün Başlığı</div>
+                <div class="product-description" id="productDesc">Ürün hakkında daha fazla bilgi yükleniliyor...</div>
+            </div>
+
+            <!-- Price Section -->
+            <div class="price-section">
+                <div class="price-label">Başlangıç Fiyatı</div>
+                <div class="price" id="productPrice">₺0</div>
+            </div>
+
+            <!-- Countdown Section -->
+            <div class="countdown-section" id="countdownSection">
+                <div class="countdown-label">Hemen Al Butonunun Aktif Olması İçin Kalan Süre</div>
+                <div class="countdown-timer" id="countdownTimer">--:--:--</div>
+                <div class="countdown-status" id="countdownStatus">Lütfen bekleyiniz...</div>
+            </div>
+
+            <!-- Activation Status -->
+            <div class="activation-status" id="activationStatus">
+                ✅ Hemen Al Butonu Aktif! Satın almak için aşağıdaki butona tıklayın.
+            </div>
+
+            <!-- Buttons -->
+            <button type="button" class="btn-disabled" id="btnWaiting">⏳ Bekleniyor...</button>
+            <button type="button" class="btn-buy-now" id="btnBuyNow">⚡ HEMEN AL</button>
+
+            <div class="loading" id="loadingState" style="display: none;">
+                <div class="spinner"></div> İşlem yapılıyor...
+            </div>
+        </div>
+
+        <div class="footer">
+            Admin paneline erişmek için: <strong>admin.html</strong>
+        </div>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div class="v--modal-overlay" id="purchaseModal">
+        <div class="v--modal-background-click" onclick="closePurchaseModal()"></div>
+        <div class="v--modal-box">
+            <div class="a-modal__content">
+                <h2>Satın Alma Onayı</h2>
+                <p id="modalMessage">Bu aracı satın almak istediğinizden emin misiniz?</p>
+                <div class="user-info" id="purchaseUserInfo"></div>
+            </div>
+            <div class="a-modal__buttons">
+                <button onclick="closePurchaseModal()">İptal</button>
+                <button onclick="confirmPurchase()">Satın Al</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="v--modal-overlay success-modal" id="successModal">
+        <div class="v--modal-background-click" onclick="closeSuccessModal()"></div>
+        <div class="v--modal-box">
+            <div class="a-modal__content">
+                <h2>✅ Tebrikler!</h2>
+                <p><strong>Satın Aldınız!</strong></p>
+                <p>En kısa sürede havale yapınız.</p>
+                <p><strong>Referans No:</strong> <span id="refNumber">---</span></p>
+                <p style="font-size: 12px; color: #155724;">Lütfen 5 iş günü içinde ödemeyi tamamlayınız.</p>
+            </div>
+            <div class="a-modal__buttons">
+                <button onclick="closeSuccessModal()">Tamam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Already Sold Modal -->
+    <div class="v--modal-overlay" id="alreadySoldModal" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="v--modal-background-click" onclick="closeAlreadySoldModal()"></div>
+        <div class="v--modal-box" style="background: #f8d7da; border: 2px solid #e74c3c;">
+            <div class="a-modal__content">
+                <h2 style="color: #c0392b;">❌ Üzgünüm!</h2>
+                <p><strong>Bu aracı başka bir üye satın aldı.</strong></p>
+                <p style="font-size: 13px; color: #721c24; margin-top: 15px;">Diğer ihalelerimizi takip etmeye devam edebilirsiniz.</p>
+            </div>
+            <div class="a-modal__buttons">
+                <button onclick="closeAlreadySoldModal()" style="background: #e74c3c; color: white;">Tamam</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+        let currentSettings = null;
+        let currentUser = null;
+        let countdownInterval = null;
+
+        // Handle login
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Kullanıcı adı ve şifre gerekli!';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Haşarılı giriş
+                    setCurrentUser(result.user);
+                    
+                    // Login container'ını gizle
+                    document.getElementById('loginContainer').classList.remove('show');
+                    
+                    // Content'i göster
+                    document.querySelector('.content').style.display = 'block';
+                    
+                    // Ayarları yükle
+                    loadSettings();
+                    
+                    errorDiv.classList.remove('show');
+                } else {
+                    errorDiv.textContent = result.error || 'Giriş başarısız!';
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                errorDiv.textContent = `Hata: ${error.message}`;
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // Get user from localStorage
+        function getCurrentUser() {
+            const user = localStorage.getItem('currentUser');
+            return user ? JSON.parse(user) : null;
+        }
+
+        // Set current user
+        function setCurrentUser(user) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            updateUserInfo();
+        }
+
+        // Update user info display
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userLoginInfo').innerHTML = `
+                    👤 <strong>Giriş Yapan:</strong> ${currentUser.username} (${currentUser.email})
+                    <button onclick="logout()" style="float: right; background: none; border: none; color: #1565c0; cursor: pointer; text-decoration: underline;">Çıkış Yap</button>
+                `;
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_URL}/settings`);
+                currentSettings = await response.json();
+
+                if (currentSettings) {
+                    document.getElementById('productTitle').textContent = currentSettings.auctionTitle || 'Ürün Başlığı';
+                    document.getElementById('productDesc').textContent = currentSettings.productDescription || 'Ürün hakkında daha fazla bilgi...';
+                    document.getElementById('productPrice').textContent = `₺${currentSettings.startPrice?.toLocaleString('tr-TR') || '0'}`;
+
+                    // Check if auction has a winner
+                    const auctionRes = await fetch(`${API_URL}/auctions/default`);
+                    const auction = await auctionRes.json();
+                    
+                    if (auction.winner) {
+                        // İhale kazanılmış, buton gizle
+                        document.getElementById('countdownSection').style.display = 'none';
+                        document.getElementById('activationStatus').classList.remove('show');
+                        document.getElementById('btnWaiting').classList.remove('show');
+                        document.getElementById('btnBuyNow').classList.remove('show');
+                        document.getElementById('countdownStatus').textContent = '🏆 Bu ihale tamamlanmıştır.';
+                        document.getElementById('countdownStatus').style.display = 'block';
+                        if (countdownInterval) clearInterval(countdownInterval);
+                    } else {
+                        startCountdown();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                document.getElementById('countdownStatus').textContent = 'Bağlantı hatası. Lütfen sayfayı yenileyin.';
+            }
+        }
+
+        // Countdown function
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const activationTime = new Date(currentSettings.activationTime).getTime();
+                const distance = activationTime - now;
+
+                if (distance <= 0) {
+                    activateButton();
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const hrs = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownTimer').textContent = 
+                    `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            };
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        // Activate button
+        function activateButton() {
+            document.getElementById('countdownSection').style.display = 'none';
+            document.getElementById('countdownTimer').textContent = '00:00:00';
+            document.getElementById('activationStatus').classList.add('show');
+            document.getElementById('btnWaiting').classList.remove('show');
+            document.getElementById('btnBuyNow').classList.add('show');
+        }
+
+        // Buy now button click
+        document.getElementById('btnBuyNow').addEventListener('click', () => {
+            if (!currentUser) {
+                alert('Lütfen önce bir kullanıcı olarak giriş yapınız. Admin panelinden kullanıcı bilgilerinizi alarak localStorage\'ye "currentUser" anahtarıyla yapıştırabilirsiniz.');
+                return;
+            }
+            showPurchaseModal();
+        });
+
+        // Show purchase modal
+        function showPurchaseModal() {
+            const userInfoHTML = `
+                <p><strong>Kullanıcı:</strong> ${currentUser.username}</p>
+                <p><strong>Email:</strong> ${currentUser.email}</p>
+                <p><strong>Telefon:</strong> ${currentUser.phone}</p>
+            `;
+            document.getElementById('purchaseUserInfo').innerHTML = userInfoHTML;
+            document.getElementById('purchaseModal').classList.add('show');
+        }
+
+        // Close purchase modal
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').classList.remove('show');
+        }
+
+        // Confirm purchase
+        async function confirmPurchase() {
+            document.getElementById('loadingState').style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_URL}/purchase`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        auctionId: currentSettings.id || 'default',
+                        purchasePrice: currentSettings.startPrice,
+                        purchaseTime: new Date().toISOString()
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closePurchaseModal();
+                    
+                    // Check outcome
+                    if (result.outcome === 'won') {
+                        showSuccessModal(result.referenceNumber);
+                    } else if (result.outcome === 'canceled') {
+                        showAlreadySoldModal(result.winnerName);
+                    }
+                } else {
+                    alert('Satın alma işlemi başarısız olmuştur: ' + (result.message || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                alert(`Hata: ${error.message}`);
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+        // Show success modal (Kazanan)
+        function showSuccessModal(refNumber) {
+            document.getElementById('refNumber').textContent = refNumber || 'TRX-' + Date.now();
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // Show already sold modal (Kazanamayan)
+        function showAlreadySoldModal(winnerName) {
+            document.getElementById('alreadySoldModal').classList.add('show');
+        }
+
+        // Close already sold modal
+        function closeAlreadySoldModal() {
+            document.getElementById('alreadySoldModal').classList.remove('show');
+            location.reload();
+        }
+
+        // Close success modal
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            location.reload();
+        }
+
+        // Modal close on background click
+        document.querySelectorAll('.v--modal-background-click').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const modal = e.target.closest('.v--modal-overlay');
+                if (modal.id === 'purchaseModal') closePurchaseModal();
+                if (modal.id === 'successModal') closeSuccessModal();
+                if (modal.id === 'alreadySoldModal') closeAlreadySoldModal();
+            });
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            currentUser = getCurrentUser();
+            
+            if (currentUser) {
+                // Kullanıcı zaten giriş yapmış
+                document.getElementById('loginContainer').classList.remove('show');
+                document.querySelector('.content').style.display = 'block';
+                updateUserInfo();
+                loadSettings();
+            } else {
+                // Kullanıcı giriş yapmamış, login formunu göster
+                document.getElementById('loginContainer').classList.add('show');
+                document.querySelector('.content').style.display = 'none';
+            }
+
+            // Settings'i her 10 saniyede bir yenile
+            setInterval(loadSettings, 10000);
+        });
+    </script>
+</body>
+</html>
