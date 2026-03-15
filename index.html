@@ -512,7 +512,7 @@
 
             <!-- Buttons -->
             <button type="button" class="btn-disabled" id="btnWaiting">⏳ Bekleniyor...</button>
-            <button type="button" class="btn-buy-now" id="btnBuyNow">⚡ HEMEN AL</button>
+            <button type="button" class="btn-buy-now" id="btnBuyNow" disabled>⚡ HEMEN AL</button>
 
             <div class="loading" id="loadingState" style="display: none;">
                 <div class="spinner"></div> İşlem yapılıyor...
@@ -720,14 +720,19 @@
             document.getElementById('countdownTimer').textContent = '00:00:00';
             document.getElementById('activationStatus').classList.add('show');
             document.getElementById('btnWaiting').classList.remove('show');
-            document.getElementById('btnBuyNow').classList.add('show');
-            document.getElementById('btnBuyNow').disabled = false;
+            const btn = document.getElementById('btnBuyNow');
+            btn.disabled = false;
+            btn.classList.add('show');
         }
 
         // Buy now button click
-        document.getElementById('btnBuyNow').addEventListener('click', () => {
+        document.getElementById('btnBuyNow').addEventListener('click', (e) => {
+            const btn = document.getElementById('btnBuyNow');
+            
             // Button aktif değilse tıklamayı engelle
-            if (document.getElementById('btnBuyNow').disabled) {
+            if (btn.disabled || !btn.classList.contains('show')) {
+                e.preventDefault();
+                e.stopPropagation();
                 return;
             }
             
@@ -736,7 +741,7 @@
                 return;
             }
             showPurchaseModal();
-        });
+        }, true); // Capture phase kullan
 
         // Show purchase modal
         function showPurchaseModal() {
