@@ -149,10 +149,12 @@
             display: none;
             text-transform: uppercase;
             letter-spacing: 1px;
+            pointer-events: none;
         }
 
         .btn-buy-now.show {
             display: block;
+            pointer-events: auto;
         }
 
         .btn-buy-now:hover {
@@ -719,10 +721,16 @@
             document.getElementById('activationStatus').classList.add('show');
             document.getElementById('btnWaiting').classList.remove('show');
             document.getElementById('btnBuyNow').classList.add('show');
+            document.getElementById('btnBuyNow').disabled = false;
         }
 
         // Buy now button click
         document.getElementById('btnBuyNow').addEventListener('click', () => {
+            // Button aktif değilse tıklamayı engelle
+            if (document.getElementById('btnBuyNow').disabled) {
+                return;
+            }
+            
             if (!currentUser) {
                 alert('Lütfen önce bir kullanıcı olarak giriş yapınız. Admin panelinden kullanıcı bilgilerinizi alarak localStorage\'ye "currentUser" anahtarıyla yapıştırabilirsiniz.');
                 return;
