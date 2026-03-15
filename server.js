@@ -7,7 +7,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3001', 'http://localhost:3000', 'https://tknozturk.github.io', 'https://auction-system-wosf.onrender.com'],
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname)));
 
